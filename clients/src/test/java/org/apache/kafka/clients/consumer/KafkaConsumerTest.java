@@ -129,6 +129,25 @@ public class KafkaConsumerTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
+    public void testConsumer() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "test-1");
+
+        KafkaConsumer<String,String> consumer = new KafkaConsumer<>(
+                config, new StringDeserializer(), new StringDeserializer());
+
+        consumer.subscribe(singletonList(topic));
+
+        ConsumerRecords<String,String> records =  consumer.poll(1000);
+        for (ConsumerRecord<String, String> record : records){
+            System.out.printf("part=%d ,offset = %d, key = %s, value = %s%n ",record.partition(), record.offset(), record.key(), record.value());
+        }
+
+        consumer.close();
+    }
+
+    @Test
     public void testConstructorClose() throws Exception {
         Properties props = new Properties();
         props.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, "testConstructorClose");

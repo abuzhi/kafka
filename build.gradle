@@ -788,6 +788,7 @@ project(':clients') {
     compile libs.lz4
     compile libs.snappy
     compile libs.slf4jApi
+    compile libs.commons_lang3
 
     testCompile libs.bcpkix
     testCompile libs.junit

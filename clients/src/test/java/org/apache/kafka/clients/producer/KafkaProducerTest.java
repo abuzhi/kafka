@@ -16,6 +16,8 @@
  */
 package org.apache.kafka.clients.producer;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.Metadata;
 import org.apache.kafka.clients.MockClient;
@@ -69,15 +71,28 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
 public class KafkaProducerTest {
 
     @Test
     public void testConstructorWithSerializers() {
         Properties producerProps = new Properties();
-        producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9000");
-        new KafkaProducer<>(producerProps, new ByteArraySerializer(), new ByteArraySerializer()).close();
+        producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        producerProps.put(ProducerConfig.RETRIES_CONFIG, 3);
+        producerProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        producerProps.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        producerProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+
+        Producer<String, String> producer =  new KafkaProducer<>(producerProps, new StringSerializer(), new StringSerializer());
+        String s = "test" + RandomStringUtils.random(10);
+        producer.send(new ProducerRecord<String, String>("test", s, s));
+
+        producer.flush();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        producer.close(5,TimeUnit.SECONDS);
     }
 
     @Test(expected = ConfigException.class)

@@ -30,7 +30,7 @@ public class ConsumerRecordTest {
     public void testOldConstructor() {
         String topic = "topic";
         int partition = 0;
-        long offset = 23;
+        long offset = 0;
         String key = "key";
         String value = "value";
 
